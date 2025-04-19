@@ -1,0 +1,9 @@
+streamlit
+pytesseract
+Pillow
+PyMuPDF
+langchain
+chromadb
+python-dotenv
+tavily-python
+langchain-google-genai
