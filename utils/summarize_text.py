@@ -1,50 +1,37 @@
-import os
 from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
 from langchain_core.runnables import RunnableSequence
 from langchain_google_genai import ChatGoogleGenerativeAI
+import os
 
-# Load environment variables
 load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
 
-if not api_key:
-    raise EnvironmentError("❌ GOOGLE_API_KEY not found in .env")
-
-# Define the prompt template using LangChain
 summarize_prompt = PromptTemplate.from_template("""
-You are a medical assistant. Given the text extracted from a patient's health report, extract key structured information.
+You are a professional medical assistant helping a healthcare provider. Summarize the key information from the patient report below.
 
-Extract the following:
-- Patient Name (if available)
-- Age / Gender (if mentioned)
+Extract and clearly format:
+- Patient Name
+- Age / Gender
 - Symptoms
 - Diagnosis / Conditions
 - Medications
 - Dosage Instructions
-- Precautions (Food, Sleep, Physical Activity)
+- Precautions (Food, Sleep, Activity, Yoga)
 - Follow-up Advice
 
-Text:
+Report:
 {report_text}
-
-Format your output clearly in bullet points or sections.
 """)
 
-# Initialize Gemini LLM using LangChain wrapper
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-pro-latest",  # ✅ Picked from available list
+    model="gemini-1.5-pro-latest",
     temperature=0.3,
-    google_api_key=api_key
+    google_api_key=os.getenv("GOOGLE_API_KEY")
 )
 
-# Combine the prompt and LLM into a LangChain RunnableSequence
 chain: RunnableSequence = summarize_prompt | llm
 
 def extract_important_details(text: str) -> str:
-    """
-    Extract structured information from patient report text using Gemini + LangChain prompt template.
-    """
     try:
         response = chain.invoke({"report_text": text})
         return response.content
