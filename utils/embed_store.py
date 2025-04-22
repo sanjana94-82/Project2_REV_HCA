@@ -5,27 +5,31 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 load_dotenv()
-CHROMA_DIR = "data/chroma_db"
 
-def store_embeddings(text, source_name="uploaded_report"):
+def store_embeddings(text, source_name="uploaded_report", persist_directory="data/chroma_db/default"):
+    # Split the text
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     docs = splitter.create_documents([text])
     for doc in docs:
         doc.metadata["source"] = source_name
 
+    # Set up embeddings
     embeddings = GoogleGenerativeAIEmbeddings(
         model="models/embedding-001",
         google_api_key=os.getenv("GOOGLE_API_KEY")
     )
 
+    # Save to Chroma
+    os.makedirs(persist_directory, exist_ok=True)
     db = Chroma.from_documents(
         documents=docs,
         embedding=embeddings,
-        persist_directory=CHROMA_DIR,
+        persist_directory=persist_directory,
     )
-    return f"Stored {len(docs)} chunks to ChromaDB."
+    db.persist()
+    return f"Stored {len(docs)} chunks to ChromaDB at {persist_directory}"
 
-def get_vectorstore(persist_directory=CHROMA_DIR):
+def get_vectorstore(persist_directory="data/chroma_db/default"):
     embeddings = GoogleGenerativeAIEmbeddings(
         model="models/embedding-001",
         google_api_key=os.getenv("GOOGLE_API_KEY")
