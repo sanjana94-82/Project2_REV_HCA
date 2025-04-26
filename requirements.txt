@@ -7,3 +7,4 @@ chromadb
 python-dotenv
 tavily-python
 langchain-google-genai
+langchain-community

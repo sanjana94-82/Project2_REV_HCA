@@ -1,3 +1,4 @@
+#extract_text.py
 import os
 import fitz  # PyMuPDF
 from PIL import Image

@@ -1,3 +1,4 @@
+#loading_reports.py
 import os
 from utils.extract_text import extract_text
 from utils.embed_store import store_embeddings
